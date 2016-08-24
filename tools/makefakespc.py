@@ -18,10 +18,10 @@ logging.info( 'expecting {} spcs'.format( spcs ) )
 def readSPC( content, unitsToRead ):
     units, = struct.unpack_from( '<L', content )
     UNIT_SIZE = 4
-    FIRST_UNIT = 1
-    remainder = content[ (units + FIRST_UNIT) * UNIT_SIZE: ]
-    firstUnits = content[ UNIT_SIZE : UNIT_SIZE * (unitsToRead + 1) ]
-    fakeBytes = struct.pack( '<L', unitsToRead ) + firstUnits
+    SPC_COUNT = 1
+    remainder = content[ (units + SPC_COUNT) * UNIT_SIZE: ]
+    firstSPCUnits = content[ UNIT_SIZE : UNIT_SIZE * (unitsToRead + 1) ]
+    fakeBytes = struct.pack( '<L', unitsToRead ) + firstSPCUnits
     return fakeBytes, remainder
 
 remainder = content
