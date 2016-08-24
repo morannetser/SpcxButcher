@@ -1,11 +1,17 @@
 import logging
+import argparse
 import struct
+
+parser = argparse.ArgumentParser()
+parser.add_argument( 'inputFile' )
+parser.add_argument( 'outputFile' )
+arguments = parser.parse_args()
 
 logging.basicConfig( level = logging.DEBUG )
 
-output = open( 'out.spcx', 'wb' )
+output = open( arguments.outputFile, 'wb' )
 
-content = open( 'example.spcx', 'rb' ).read()
+content = open( arguments.inputFile, 'rb' ).read()
 spcs, = struct.unpack( '<L', content[ -4: ] )
 logging.info( 'expecting {} spcs'.format( spcs ) )
 
