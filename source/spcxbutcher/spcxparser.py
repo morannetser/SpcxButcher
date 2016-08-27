@@ -13,12 +13,19 @@ class SPCXParser:
             spcUnitCount, = struct.unpack( '<L', self._file.read( spcxbutcher.spc.UNIT_SIZE ) )
             self._parseSPC( spcUnitCount )
 
+        self._verifySPCNumber( spcUnitCount )
+
     def _parseSPC( self, spcUnitCount ):
         try:
             spc = spcxbutcher.spc.SPC( spcUnitCount, self._file )
             self._spcs.append( spc )
         except spcxbutcher.spc.NoMoreSPCs:
             self._done = True
+
+    def _verifySPCNumber( self, lastUnitRead ):
+        expectedSPCNumber = lastUnitRead
+        if expectedSPCNumber != len( self._spcs ):
+            raise Exception( "expected {} SPCs but found {}".format( expectedSPCNumber, len( self._spcs ) ) )
 
     def __len__( self ):
         return len( self._spcs )

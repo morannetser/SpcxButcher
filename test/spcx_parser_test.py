@@ -2,7 +2,7 @@ import unittest
 from spcxbutcher import spcxparser
 import binascii
 
-SMALL_SPCX_FILE = binascii.a2b_hex( '03000000028302c10000004016ba000504000000028302c1000000401ba70008ddb8000805000000028302c100000040c8b900044bbb000d2fbc000703000000' )
+SMALL_SPCX_FILE_HEX = '03000000028302c10000004016ba000504000000028302c1000000401ba70008ddb8000805000000028302c100000040c8b900044bbb000d2fbc000703000000' 
 SPCX_FILE_HEX_DUMP = \
 """
 00000000: 00000003 c1028302 40000000 0500ba16  ...........@....
@@ -13,13 +13,18 @@ SPCX_FILE_HEX_DUMP = \
 
 import io
 
-def fakeOpen( * args ):
-    return io.BytesIO( SMALL_SPCX_FILE )
+class FakeOpen:
+    def __init__( self, content ):
+        self._content = content
 
-spcxparser.open = fakeOpen
+    def __call__( self, * args ):
+        binary = binascii.a2b_hex( self._content )
+        return io.BytesIO( binary )
+
 
 class SpcxParserTest( unittest.TestCase ):
     def test_parse_correctly( self ):
+        spcxparser.open = FakeOpen( SMALL_SPCX_FILE_HEX )
         tested = spcxparser.SPCXParser( 'spcx_filename' )
         self.assertEqual( 3, len( tested ) )
         spcs = [ spc for spc in tested ]
@@ -38,6 +43,11 @@ class SpcxParserTest( unittest.TestCase ):
                                 raw = 0,
                                 timePerBin = 0x28302,
                                 events = [ (4, 47560), (13, 47947), (7, 48175) ] )
+
+    def test_throw_if_number_of_spcs_different_from_expected_number( self ):
+        SPCX_FILE_WITH_WRONG_EXPECTED_NUMBER = SMALL_SPCX_FILE_HEX[ :-8 ] + '04000000'
+        spcxparser.open = FakeOpen( SPCX_FILE_WITH_WRONG_EXPECTED_NUMBER )
+        self.assertRaises( Exception, spcxparser.SPCXParser, 'spcx_filename' )
 
     def assertSPCContent( self, spc, raw, timePerBin, events ):
         self.assertEqual( raw, spc.raw )
