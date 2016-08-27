@@ -4,7 +4,7 @@ UNIT_SIZE = 4
 UNIT_FORMAT = '<L'
 assert struct.calcsize( UNIT_FORMAT ) == UNIT_SIZE
 
-class NoMoreSPCs( Exception ): pass
+class _NoMoreSPCs( Exception ): pass
 
 class SPC:
     def __init__( self, unitCount, file ):
@@ -23,7 +23,7 @@ class SPC:
             descriptor, = next( self._iterator )
             return descriptor
         except StopIteration:
-            raise NoMoreSPCs()
+            raise _NoMoreSPCs()
 
     def _parseDescriptor( self, descriptor ):
         highestByte = descriptor >> 24
@@ -52,3 +52,9 @@ class SPC:
     @property
     def events( self ):
         return self._events
+
+def fromFile( unitCount, file ):
+    try:
+        return SPC( unitCount, file )
+    except _NoMoreSPCs:
+        return None

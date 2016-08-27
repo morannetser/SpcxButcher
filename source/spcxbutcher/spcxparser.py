@@ -16,11 +16,11 @@ class SPCXParser:
         self._verifySPCNumber( spcUnitCount )
 
     def _parseSPC( self, spcUnitCount ):
-        try:
-            spc = spcxbutcher.spc.SPC( spcUnitCount, self._file )
-            self._spcs.append( spc )
-        except spcxbutcher.spc.NoMoreSPCs:
+        spc = spcxbutcher.spc.fromFile( spcUnitCount, self._file )
+        if spc is None:
             self._done = True
+            return
+        self._spcs.append( spc )
 
     def _verifySPCNumber( self, lastUnitRead ):
         expectedSPCNumber = lastUnitRead
