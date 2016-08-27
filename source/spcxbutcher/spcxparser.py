@@ -1,5 +1,6 @@
 import struct
 import spcxbutcher.spc
+import logging
 
 class SPCXParser:
     def __init__( self, filename ):
@@ -10,7 +11,8 @@ class SPCXParser:
 
     def _parse( self ):
         while not self._done:
-            spcUnitCount, = struct.unpack( '<L', self._file.read( spcxbutcher.spc.UNIT_SIZE ) )
+            unit = self._file.read( spcxbutcher.spc.UNIT_SIZE )
+            spcUnitCount, = struct.unpack( '<L', unit )
             self._parseSPC( spcUnitCount )
 
         self._verifySPCNumber( spcUnitCount )
@@ -20,6 +22,7 @@ class SPCXParser:
         if spc is None:
             self._done = True
             return
+        logging.info( 'read spc with {} events'.format( len( spc.events ) ) )
         self._spcs.append( spc )
 
     def _verifySPCNumber( self, lastUnitRead ):

@@ -1,4 +1,5 @@
 import struct
+import logging
 
 UNIT_SIZE = 4
 UNIT_FORMAT = '<L'
@@ -8,6 +9,7 @@ class _NoMoreSPCs( Exception ): pass
 
 class SPC:
     def __init__( self, unitCount, file ):
+        self._hightime = 0
         content = file.read( UNIT_SIZE * unitCount )
         self._iterator = struct.iter_unpack( UNIT_FORMAT, content )
         self._parse()
@@ -35,11 +37,24 @@ class SPC:
 
     def _parseEvents( self ):
         self._events = []
-        for eventTuple in self._iterator:
-            event = eventTuple[ 0 ]
+        for event, in self._iterator:
+            if self._hightimeChange( event ):
+                newHightime = self._extractHightime( event )
+                if ( newHightime - self._hightime ) != ( 1 << 24 ):
+                    logging.warning( 'high timestamp bits changed more than expected! from {} to {}'.format( self._hightime, newHightime ) )
+                self._hightime = newHightime
+                continue
             timestamp = event & 0x00ffffff
             channel = ( event >> 24 ) & 0b00011111
-            self._events.append( ( channel, timestamp ) )
+            self._events.append( ( channel, self._hightime + timestamp ) )
+
+    def _hightimeChange( self, event ):
+        mark = event & 0xc0000000
+        return mark == 0x40000000
+
+    def _extractHightime( self, event ):
+        hightimeBits = 0x3fffffff & event
+        return hightimeBits << 24
 
     @property
     def raw( self ):
