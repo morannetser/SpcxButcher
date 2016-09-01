@@ -104,6 +104,14 @@ class SpcxParserTest( unittest.TestCase ):
             spcxparser.open = FakeOpen( invalidSPCX )
             self.assertRaises( spcxbutcher.spc.InvalidDescriptor, spcxparser.SPCXParser, 'spcx_filename' )
 
+    def test_throw_exception_on_invalid_descriptor( self ):
+        VALID_SPCX = SMALL_SPCX_FILE_HEX
+        VALID_EVENT = '1ba70008'
+        for invalidEvent in [  '1ba70088', '1ba700c8' ]:
+            invalidSPCX = VALID_SPCX.replace( VALID_EVENT, invalidEvent )
+            spcxparser.open = FakeOpen( invalidSPCX )
+            self.assertRaises( spcxbutcher.spc.InvalidEventRecord, spcxparser.SPCXParser, 'spcx_filename' )
+
     def assertSPCContent( self, spc, raw, timePerBin, events ):
         self.assertEqual( raw, spc.raw )
         self.assertEqual( timePerBin, spc.timePerBin )

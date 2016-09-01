@@ -10,6 +10,9 @@ class _NoMoreSPCs( Exception ): pass
 class InvalidDescriptor( Exception ):
     pass
 
+class InvalidEventRecord( Exception ):
+    pass
+
 class SPC:
     def __init__( self, unitCount, file ):
         self._hightime = 0
@@ -57,6 +60,7 @@ class SPC:
     def _parseEvents( self ):
         self._events = []
         for event, in self._iterator:
+            self._verifyEventRecordHeader( event )
             if self._hightimeChange( event ):
                 newHightime = self._extractHightime( event )
                 if ( newHightime - self._hightime ) != ( 1 << 24 ):
@@ -67,6 +71,11 @@ class SPC:
             channel = ( event >> 24 ) & 0b00011111
             gap = event >> 29
             self._events.append( ( channel, self._hightime + timestamp, gap ) )
+
+    def _verifyEventRecordHeader( self, event ):
+        highestTwoBits = ( event & 0xc0000000 ) >> 30
+        if highestTwoBits not in [ 0b00, 0b01 ]:
+            raise InvalidEventRecord( 'invalid event record: {:08x}'.format( event ) )
 
     def _hightimeChange( self, event ):
         mark = event & 0xc0000000
