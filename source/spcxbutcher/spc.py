@@ -65,7 +65,8 @@ class SPC:
                 continue
             timestamp = event & 0x00ffffff
             channel = ( event >> 24 ) & 0b00011111
-            self._events.append( ( channel, self._hightime + timestamp ) )
+            gap = event >> 29
+            self._events.append( ( channel, self._hightime + timestamp, gap ) )
 
     def _hightimeChange( self, event ):
         mark = event & 0xc0000000

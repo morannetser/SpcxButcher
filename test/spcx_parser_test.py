@@ -14,6 +14,12 @@ SPCX_WITH_TIMESTAMP_OVERFLOW  = ''.join(
  '0a000000', '028302c1', '00000040', '27faff04', '55fbff09', '01000040', 'ac020005', '57f9ff09', '47faff07', '02000040', 'cc030005',
  '02000000'] )
 
+SPCX_WITH_NONZERO_GAP = ''.join(
+       ['03000000', '028302c1', '00000040', '16ba0025',
+        '04000000', '028302c1', '00000040', '1ba70028', 'ddb80008',
+        '05000000', '028302c1', '00000040', 'c8b90024', '4bbb000d', '2fbc0007',
+        '03000000'] )
+
 import io
 
 class FakeOpen:
@@ -35,17 +41,17 @@ class SpcxParserTest( unittest.TestCase ):
         self.assertSPCContent(  spcs[ 0 ],
                                 raw = 0,
                                 timePerBin = 0x28302,
-                                events = [ (5, 47638) ] )
+                                events = [ (5, 47638, 0) ] )
 
         self.assertSPCContent(  spcs[ 1 ],
                                 raw = 0,
                                 timePerBin = 0x28302,
-                                events = [ (8, 42779), (8, 47325) ] )
+                                events = [ (8, 42779, 0), (8, 47325, 0) ] )
 
         self.assertSPCContent(  spcs[ 2 ],
                                 raw = 0,
                                 timePerBin = 0x28302,
-                                events = [ (4, 47560), (13, 47947), (7, 48175) ] )
+                                events = [ (4, 47560, 0), (13, 47947, 0), (7, 48175, 0) ] )
 
     def test_throw_if_number_of_spcs_different_from_expected_number( self ):
         SPCX_FILE_WITH_WRONG_EXPECTED_NUMBER = SMALL_SPCX_FILE_HEX[ :-8 ] + '04000000'
@@ -61,13 +67,34 @@ class SpcxParserTest( unittest.TestCase ):
         self.assertSPCContent(  spcs[ 0 ],
                                 raw = 0,
                                 timePerBin = 0x28302,
-                                events = [ (5, 47638) ] )
+                                events = [ (5, 47638, 0) ] )
 
         self.assertSPCContent(  spcs[ 1 ],
                                 raw = 0,
                                 timePerBin = 0x28302,
-                                events = [ (4, 0xfffa27), (9, 0xfffb55), (5, 0x10002ac),
-                                           (9, 0x1fff957), (7, 0x1fffa47), (5,0x20003cc) ] )
+                                events = [ (4, 0xfffa27, 0), (9, 0xfffb55, 0), (5, 0x10002ac, 0),
+                                           (9, 0x1fff957, 0), (7, 0x1fffa47, 0), (5,0x20003cc, 0) ] )
+
+    def test_parse_gap_correctly_when_it_is_not_zero( self ):
+        spcxparser.open = FakeOpen( SPCX_WITH_NONZERO_GAP )
+        tested = spcxparser.SPCXParser( 'spcx_filename' )
+        self.assertEqual( 3, len( tested ) )
+        spcs = [ spc for spc in tested ]
+
+        self.assertSPCContent(  spcs[ 0 ],
+                                raw = 0,
+                                timePerBin = 0x28302,
+                                events = [ (5, 47638, 1) ] )
+
+        self.assertSPCContent(  spcs[ 1 ],
+                                raw = 0,
+                                timePerBin = 0x28302,
+                                events = [ (8, 42779, 1), (8, 47325, 0) ] )
+
+        self.assertSPCContent(  spcs[ 2 ],
+                                raw = 0,
+                                timePerBin = 0x28302,
+                                events = [ (4, 47560, 1), (13, 47947, 0), (7, 48175, 0) ] )
 
     def test_throw_exception_on_invalid_descriptor( self ):
         VALID_SPCX = SMALL_SPCX_FILE_HEX
