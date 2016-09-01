@@ -41,17 +41,17 @@ class SpcxParserTest( unittest.TestCase ):
         self.assertSPCContent(  spcs[ 0 ],
                                 raw = 0,
                                 timePerBin = 0x28302,
-                                events = [ (5, 47638, 0) ] )
+                                events = [ (3, 47638, 0) ] )
 
         self.assertSPCContent(  spcs[ 1 ],
                                 raw = 0,
                                 timePerBin = 0x28302,
-                                events = [ (8, 42779, 0), (8, 47325, 0) ] )
+                                events = [ (6, 42779, 0), (6, 47325, 0) ] )
 
         self.assertSPCContent(  spcs[ 2 ],
                                 raw = 0,
                                 timePerBin = 0x28302,
-                                events = [ (4, 47560, 0), (13, 47947, 0), (7, 48175, 0) ] )
+                                events = [ (2, 47560, 0), (9, 47947, 0), (5, 48175, 0) ] )
 
     def test_throw_if_number_of_spcs_different_from_expected_number( self ):
         SPCX_FILE_WITH_WRONG_EXPECTED_NUMBER = SMALL_SPCX_FILE_HEX[ :-8 ] + '04000000'
@@ -67,13 +67,13 @@ class SpcxParserTest( unittest.TestCase ):
         self.assertSPCContent(  spcs[ 0 ],
                                 raw = 0,
                                 timePerBin = 0x28302,
-                                events = [ (5, 47638, 0) ] )
+                                events = [ (3, 47638, 0) ] )
 
         self.assertSPCContent(  spcs[ 1 ],
                                 raw = 0,
                                 timePerBin = 0x28302,
-                                events = [ (4, 0xfffa27, 0), (9, 0xfffb55, 0), (5, 0x10002ac, 0),
-                                           (9, 0x1fff957, 0), (7, 0x1fffa47, 0), (5,0x20003cc, 0) ] )
+                                events = [ (2, 0xfffa27, 0), (7, 0xfffb55, 0), (3, 0x10002ac, 0),
+                                           (7, 0x1fff957, 0), (5, 0x1fffa47, 0), (3, 0x20003cc, 0) ] )
 
     def test_parse_gap_correctly_when_it_is_not_zero( self ):
         spcxparser.open = FakeOpen( SPCX_WITH_NONZERO_GAP )
@@ -84,17 +84,17 @@ class SpcxParserTest( unittest.TestCase ):
         self.assertSPCContent(  spcs[ 0 ],
                                 raw = 0,
                                 timePerBin = 0x28302,
-                                events = [ (5, 47638, 1) ] )
+                                events = [ (3, 47638, 1) ] )
 
         self.assertSPCContent(  spcs[ 1 ],
                                 raw = 0,
                                 timePerBin = 0x28302,
-                                events = [ (8, 42779, 1), (8, 47325, 0) ] )
+                                events = [ (6, 42779, 1), (6, 47325, 0) ] )
 
         self.assertSPCContent(  spcs[ 2 ],
                                 raw = 0,
                                 timePerBin = 0x28302,
-                                events = [ (4, 47560, 1), (13, 47947, 0), (7, 48175, 0) ] )
+                                events = [ (2, 47560, 1), (9, 47947, 0), (5, 48175, 0) ] )
 
     def test_throw_exception_on_invalid_descriptor( self ):
         VALID_SPCX = SMALL_SPCX_FILE_HEX

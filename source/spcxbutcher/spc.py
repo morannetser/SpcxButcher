@@ -68,9 +68,18 @@ class SPC:
                 self._hightime = newHightime
                 continue
             timestamp = event & 0x00ffffff
-            channel = ( event >> 24 ) & 0b00011111
+            lvttl = self._lvttl( event )
             gap = event >> 29
-            self._events.append( ( channel, self._hightime + timestamp, gap ) )
+            self._events.append( ( lvttl, self._hightime + timestamp, gap ) )
+
+    def _lvttl( self, event ):
+        channel = ( event >> 24 ) & 0b00011111
+        if channel < 3 or channel > 14:
+            raise Exception( "unexpected channel value: {}".format( channel ) )
+        if channel <= 10:
+            return channel - 2
+        else:
+            return channel - 4
 
     def _verifyEventRecordHeader( self, event ):
         highestTwoBits = ( event & 0xc0000000 ) >> 30
