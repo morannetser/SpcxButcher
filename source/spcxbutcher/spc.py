@@ -7,6 +7,9 @@ assert struct.calcsize( UNIT_FORMAT ) == UNIT_SIZE
 
 class _NoMoreSPCs( Exception ): pass
 
+class InvalidDescriptor( Exception ):
+    pass
+
 class SPC:
     def __init__( self, unitCount, file ):
         self._hightime = 0
@@ -16,6 +19,7 @@ class SPC:
 
     def _parse( self ):
         descriptor = self._readDescriptor()
+        self._validate( descriptor )
         self._parseDescriptor( descriptor )
         self._skipGarbageEvent()
         self._parseEvents()
@@ -26,6 +30,21 @@ class SPC:
             return descriptor
         except StopIteration:
             raise _NoMoreSPCs()
+
+    def _validate( self, descriptor ):
+        bit = {}
+        for position in [ 24, 25, 27 ]:
+            value = ( 1 << position ) & descriptor
+            bit[ position ] = value >> position
+
+        high4bits = 0xf0000000 & descriptor
+        valid = high4bits == 0xc0000000\
+                and bit[ 24 ] == 1 \
+                and bit[ 25 ] == 0 \
+                and bit[ 27 ] == 0
+
+        if not valid:
+            raise InvalidDescriptor( 'Invalid descriptor {:08x}'.format( descriptor ) )
 
     def _parseDescriptor( self, descriptor ):
         highestByte = descriptor >> 24

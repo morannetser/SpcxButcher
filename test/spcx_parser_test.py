@@ -1,5 +1,6 @@
 import unittest
 from spcxbutcher import spcxparser
+import spcxbutcher.spc
 import binascii
 
 SMALL_SPCX_FILE_HEX = ''.join(
@@ -12,7 +13,7 @@ SPCX_WITH_TIMESTAMP_OVERFLOW  = ''.join(
 ['03000000', '028302c1', '00000040', '16ba0005',
  '0a000000', '028302c1', '00000040', '27faff04', '55fbff09', '01000040', 'ac020005', '57f9ff09', '47faff07', '02000040', 'cc030005',
  '02000000'] )
- 
+
 import io
 
 class FakeOpen:
@@ -67,6 +68,14 @@ class SpcxParserTest( unittest.TestCase ):
                                 timePerBin = 0x28302,
                                 events = [ (4, 0xfffa27), (9, 0xfffb55), (5, 0x10002ac),
                                            (9, 0x1fff957), (7, 0x1fffa47), (5,0x20003cc) ] )
+
+    def test_throw_exception_on_invalid_descriptor( self ):
+        VALID_SPCX = SMALL_SPCX_FILE_HEX
+        VALID_DESCRIPTOR = '028302c1'
+        for invalidDescriptor in [ '028302d1', '028302c2', '028302cd' ]:
+            invalidSPCX = VALID_SPCX.replace( VALID_DESCRIPTOR, invalidDescriptor )
+            spcxparser.open = FakeOpen( invalidSPCX )
+            self.assertRaises( spcxbutcher.spc.InvalidDescriptor, spcxparser.SPCXParser, 'spcx_filename' )
 
     def assertSPCContent( self, spc, raw, timePerBin, events ):
         self.assertEqual( raw, spc.raw )
