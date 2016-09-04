@@ -7,6 +7,12 @@ assert struct.calcsize( UNIT_FORMAT ) == UNIT_SIZE
 
 class _NoMoreSPCs( Exception ): pass
 
+class InvalidDescriptor( Exception ):
+    pass
+
+class InvalidEventRecord( Exception ):
+    pass
+
 class SPC:
     def __init__( self, unitCount, file ):
         self._hightime = 0
@@ -16,6 +22,7 @@ class SPC:
 
     def _parse( self ):
         descriptor = self._readDescriptor()
+        self._validate( descriptor )
         self._parseDescriptor( descriptor )
         self._skipGarbageEvent()
         self._parseEvents()
@@ -26,6 +33,21 @@ class SPC:
             return descriptor
         except StopIteration:
             raise _NoMoreSPCs()
+
+    def _validate( self, descriptor ):
+        bit = {}
+        for position in [ 24, 25, 27 ]:
+            value = ( 1 << position ) & descriptor
+            bit[ position ] = value >> position
+
+        high4bits = 0xf0000000 & descriptor
+        valid = high4bits == 0xc0000000\
+                and bit[ 24 ] == 1 \
+                and bit[ 25 ] == 0 \
+                and bit[ 27 ] == 0
+
+        if not valid:
+            raise InvalidDescriptor( 'Invalid descriptor {:08x}'.format( descriptor ) )
 
     def _parseDescriptor( self, descriptor ):
         highestByte = descriptor >> 24
@@ -38,6 +60,7 @@ class SPC:
     def _parseEvents( self ):
         self._events = []
         for event, in self._iterator:
+            self._verifyEventRecordHeader( event )
             if self._hightimeChange( event ):
                 newHightime = self._extractHightime( event )
                 if ( newHightime - self._hightime ) != ( 1 << 24 ):
@@ -45,8 +68,23 @@ class SPC:
                 self._hightime = newHightime
                 continue
             timestamp = event & 0x00ffffff
-            channel = ( event >> 24 ) & 0b00011111
-            self._events.append( ( channel, self._hightime + timestamp ) )
+            lvttl = self._lvttl( event )
+            gap = event >> 29
+            self._events.append( ( lvttl, self._hightime + timestamp, gap ) )
+
+    def _lvttl( self, event ):
+        channel = ( event >> 24 ) & 0b00011111
+        if channel < 3 or channel > 14:
+            raise Exception( "unexpected channel value: {}".format( channel ) )
+        if channel <= 10:
+            return channel - 2
+        else:
+            return channel - 4
+
+    def _verifyEventRecordHeader( self, event ):
+        highestTwoBits = ( event & 0xc0000000 ) >> 30
+        if highestTwoBits not in [ 0b00, 0b01 ]:
+            raise InvalidEventRecord( 'invalid event record: {:08x}'.format( event ) )
 
     def _hightimeChange( self, event ):
         mark = event & 0xc0000000
