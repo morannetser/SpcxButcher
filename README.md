@@ -1,4 +1,5 @@
 # The SPCX Butcher
+![alt tag](https://raw.githubusercontent.com/morannetser/SpcxButcher/master/butcher_knife.png)
 
 This project is an SPCX parsing library.
 
