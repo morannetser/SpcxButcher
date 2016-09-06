@@ -11,6 +11,7 @@ class _NoMoreSPCs( Exception ): pass
 
 class SPC:
     def __init__( self, unitCount, file ):
+        event.Event.resetHightime()
         content = file.read( UNIT_SIZE * unitCount )
         self._iterator = struct.iter_unpack( UNIT_FORMAT, content )
         self._parse()

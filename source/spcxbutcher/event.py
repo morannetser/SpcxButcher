@@ -18,6 +18,9 @@ class Event:
         self.gap = rawData >> 29
         self.timestamp = self._hightime + timestamp
 
+    def __repr__( self ):
+        return str( ( self.lvttl, self.timestamp, self.gap ) )
+
     def _hightimeChange( self, rawData ):
         mark = rawData & 0xc0000000
         return mark == 0x40000000
@@ -38,6 +41,10 @@ class Event:
     def _extractHightime( cls, rawData ):
         hightimeBits = 0x3fffffff & rawData
         return hightimeBits << 24
+
+    @classmethod
+    def resetHightime( cls ):
+        cls._hightime = 0
 
     def _lvttl( self, event ):
         channel = ( event >> 24 ) & 0b00011111

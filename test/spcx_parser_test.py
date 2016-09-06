@@ -16,6 +16,12 @@ SPCX_WITH_TIMESTAMP_OVERFLOW  = ''.join(
  '0a000000', '028302c1', '00000040', '27faff04', '55fbff09', '01000040', 'ac020005', '57f9ff09', '47faff07', '02000040', 'cc030005',
  '02000000'] )
 
+SPCX_WITH_TIMESTAMP_OVERFLOW_3_SPCS  = ''.join( 
+['03000000', '028302c1', '00000040', '16ba0005',
+ '0a000000', '028302c1', '00000040', '27faff04', '55fbff09', '01000040', 'ac020005', '57f9ff09', '47faff07', '02000040', 'cc030005',
+ '03000000', '028302c1', '00000040', '16ba0005',
+ '03000000'] )
+
 SPCX_WITH_NONZERO_GAP = ''.join(
        ['03000000', '028302c1', '00000040', '16ba0025',
         '04000000', '028302c1', '00000040', '1ba70028', 'ddb80008',
@@ -76,6 +82,28 @@ class SpcxParserTest( unittest.TestCase ):
                                 timePerBin = 0x28302,
                                 events = [ (2, 0xfffa27, 0), (7, 0xfffb55, 0), (3, 0x10002ac, 0),
                                            (7, 0x1fff957, 0), (5, 0x1fffa47, 0), (3, 0x20003cc, 0) ] )
+
+    def test_bugfix_timestamp_base_reset_for_each_spc( self ):
+        spcxparser.open = FakeOpen( SPCX_WITH_TIMESTAMP_OVERFLOW_3_SPCS )
+        tested = spcxparser.SPCXParser( 'spcx_filename' )
+        self.assertEqual( 3, len( tested ) )
+        spcs = [ spc for spc in tested ]
+
+        self.assertSPCContent(  spcs[ 0 ],
+                                raw = 0,
+                                timePerBin = 0x28302,
+                                events = [ (3, 47638, 0) ] )
+
+        self.assertSPCContent(  spcs[ 1 ],
+                                raw = 0,
+                                timePerBin = 0x28302,
+                                events = [ (2, 0xfffa27, 0), (7, 0xfffb55, 0), (3, 0x10002ac, 0),
+                                           (7, 0x1fff957, 0), (5, 0x1fffa47, 0), (3, 0x20003cc, 0) ] )
+
+        self.assertSPCContent(  spcs[ 2 ],
+                                raw = 0,
+                                timePerBin = 0x28302,
+                                events = [ (3, 47638, 0) ] )
 
     def test_parse_gap_correctly_when_it_is_not_zero( self ):
         spcxparser.open = FakeOpen( SPCX_WITH_NONZERO_GAP )
