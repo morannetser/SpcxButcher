@@ -2,6 +2,7 @@ import unittest
 from spcxbutcher import spcxparser
 import spcxbutcher.spc
 import spcxbutcher.descriptor
+import spcxbutcher.event
 import binascii
 
 SMALL_SPCX_FILE_HEX = ''.join(
@@ -111,7 +112,7 @@ class SpcxParserTest( unittest.TestCase ):
         for invalidEvent in [  '1ba70088', '1ba700c8' ]:
             invalidSPCX = VALID_SPCX.replace( VALID_EVENT, invalidEvent )
             spcxparser.open = FakeOpen( invalidSPCX )
-            self.assertRaises( spcxbutcher.spc.InvalidEventRecord, spcxparser.SPCXParser, 'spcx_filename' )
+            self.assertRaises( spcxbutcher.event.InvalidEventRecord, spcxparser.SPCXParser, 'spcx_filename' )
 
     def assertSPCContent( self, spc, raw, timePerBin, events ):
         self.assertEqual( raw, spc.raw )

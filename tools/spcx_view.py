@@ -8,8 +8,9 @@ def printSPC( spc ):
     print( 'raw: {}'.format( spc.raw ) )
     print( 'timePerBin: {}'.format( spc.timePerBin ) )
     print( "lvttl\ttimestamp\tgap" )
-    for lvttl, timestamp, gap in spc.events:
-        print( '{}\t{:x}\t{}'.format( lvttl, timestamp, gap ) )
+    for event in spc.events:
+
+        print( '{}\t{:x}\t{}'.format( event.lvttl, event.timestamp, event.gap ) )
 
 
 parser = argparse.ArgumentParser()
