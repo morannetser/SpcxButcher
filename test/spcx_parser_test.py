@@ -1,6 +1,7 @@
 import unittest
 from spcxbutcher import spcxparser
 import spcxbutcher.spc
+import spcxbutcher.descriptor
 import binascii
 
 SMALL_SPCX_FILE_HEX = ''.join(
@@ -102,7 +103,7 @@ class SpcxParserTest( unittest.TestCase ):
         for invalidDescriptor in [ '028302d1', '028302c2', '028302cd' ]:
             invalidSPCX = VALID_SPCX.replace( VALID_DESCRIPTOR, invalidDescriptor )
             spcxparser.open = FakeOpen( invalidSPCX )
-            self.assertRaises( spcxbutcher.spc.InvalidDescriptor, spcxparser.SPCXParser, 'spcx_filename' )
+            self.assertRaises( spcxbutcher.descriptor.InvalidDescriptor, spcxparser.SPCXParser, 'spcx_filename' )
 
     def test_throw_exception_on_invalid_descriptor( self ):
         VALID_SPCX = SMALL_SPCX_FILE_HEX
