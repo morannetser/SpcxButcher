@@ -31,7 +31,7 @@ class Event:
     def _updateHightime( cls, rawData ):
         newHightime = cls._extractHightime( rawData )
         if ( newHightime - cls._hightime ) != ( 1 << 24 ):
-            logging.warning( 'high timestamp bits changed more than expected! from {} to {}'.format( cls._hightime, newHightime ) )
+            logging.warning( 'high timestamp bits changed more than expected! from {:08x} to {:08x}'.format( cls._hightime, newHightime ) )
         cls._hightime = newHightime
 
     @classmethod
