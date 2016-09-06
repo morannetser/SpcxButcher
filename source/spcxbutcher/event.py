@@ -46,6 +46,10 @@ class Event:
     def resetHightime( cls ):
         cls._hightime = 0
 
+    @property
+    def channel( self ):
+        return self.lvttl
+
     def _lvttl( self, event ):
         channel = ( event >> 24 ) & 0b00011111
         if channel < 3 or channel > 14:
