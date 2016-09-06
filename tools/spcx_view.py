@@ -9,7 +9,6 @@ def printSPC( spc ):
     print( 'timePerBin: {}'.format( spc.timePerBin ) )
     print( "lvttl\ttimestamp\tgap" )
     for event in spc.events:
-
         print( '{}\t{}\t{}'.format( event.lvttl, event.timestamp, event.gap ) )
 
 
