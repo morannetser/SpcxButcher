@@ -10,7 +10,7 @@ def printSPC( spc ):
     print( "lvttl\ttimestamp\tgap" )
     for event in spc.events:
 
-        print( '{}\t{:x}\t{}'.format( event.lvttl, event.timestamp, event.gap ) )
+        print( '{}\t{}\t{}'.format( event.lvttl, event.timestamp, event.gap ) )
 
 
 parser = argparse.ArgumentParser()
