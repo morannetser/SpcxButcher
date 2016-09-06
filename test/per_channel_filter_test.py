@@ -23,9 +23,10 @@ class PerChannelFilter( unittest.TestCase ):
         drop20 = DropSpecificTimestamp( 20 )
         drop40 = DropSpecificTimestamp( 40 )
         drop100 = DropSpecificTimestamp( 100 )
-        tested = perchannelfilter.PerChannelFilter( records, { 1: drop20, 2: drop40, 3: drop100 } )
+        tested = perchannelfilter.PerChannelFilter( { 1: drop20, 2: drop40, 3: drop100 } )
 
-        results = [ ( record.channel, record.timestamp ) for record in tested.results ]
+        filtered = filter( tested, records )
+        results = [ ( record.channel, record.timestamp ) for record in filtered ]
         self.assertEqual( [ (3, 10), (1, 30), (2, 50), (1, 60), (1, 70), (3, 80) ], results )
         self.assertEqual( [ (1, 20), (1, 30), (1, 60), (1, 70) ], drop20.calledWith )
         self.assertEqual( [ (2, 40), (2, 50) ], drop40.calledWith )

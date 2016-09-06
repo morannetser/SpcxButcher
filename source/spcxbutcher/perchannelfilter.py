@@ -1,13 +1,7 @@
 class PerChannelFilter:
-    def __init__( self, records, filters ):
-        results = []
-        for record in records:
-            filter = filters[ record.channel ]
-            if filter( record ):
-                results.append( record )
+    def __init__( self, filters ):
+        self._filters = filters
 
-        self._results = results
-
-    @property
-    def results( self ):
-        return self._results
+    def __call__( self, record ):
+        filter = self._filters[ record.channel ]
+        return filter( record )

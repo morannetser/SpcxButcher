@@ -17,6 +17,6 @@ for spc in spcx:
     for i in range( 1, 11 ):
         filters[ i ] = spcxbutcher.deadtimefilter.DeadtimeFilter( i * spc.timePerBin )
 
-    perChannelFilter = spcxbutcher.perchannelfilter.PerChannelFilter( spc.events, filters )
-    for event in perChannelFilter.results:
+    perChannelFilter = spcxbutcher.perchannelfilter.PerChannelFilter( filters )
+    for event in filter( perChannelFilter, spc.events ):
         print( '{}\t{}\t{}'.format( event.lvttl, event.timestamp, event.gap ) )
