@@ -1,2 +1,2 @@
 #!/bin/bash
-python -m unittest test/*test.py
+PYTHONPATH=$TOP:$PYTHONPATH python3 -m unittest test/*test.py
