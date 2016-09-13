@@ -4,47 +4,21 @@ class InvalidEventRecord( Exception ):
     pass
 
 class Event:
-    _hightime = 0
-
-    def __init__( self, rawData ):
-        self._verifyEventRecordHeader( rawData )
-        if self._hightimeChange( rawData ):
-            self.type = 'high time change'
-            self._updateHightime( rawData )
-            return
+    def __init__( self, rawData, hightime ):
         self.type = 'event'
         timestamp = rawData & 0x00ffffff
         self.lvttl = self._lvttl( rawData )
         self.gap = rawData >> 29
-        self.timestamp = self._hightime + timestamp
+        self.timestamp = hightime + timestamp
 
     def __repr__( self ):
         return str( ( self.lvttl, self.timestamp, self.gap ) )
 
-    def _hightimeChange( self, rawData ):
-        mark = rawData & 0xc0000000
-        return mark == 0x40000000
-
-    def _verifyEventRecordHeader( self, rawData ):
+    @classmethod
+    def verifyEventRecordHeader( self, rawData ):
         highestTwoBits = ( rawData & 0xc0000000 ) >> 30
         if highestTwoBits not in [ 0b00, 0b01 ]:
             raise InvalidEventRecord( 'invalid rawData record: {:08x}'.format( rawData ) )
-
-    @classmethod
-    def _updateHightime( cls, rawData ):
-        newHightime = cls._extractHightime( rawData )
-        if ( newHightime - cls._hightime ) != ( 1 << 24 ):
-            logging.warning( 'high timestamp bits changed more than expected! from {:08x} to {:08x}'.format( cls._hightime, newHightime ) )
-        cls._hightime = newHightime
-
-    @classmethod
-    def _extractHightime( cls, rawData ):
-        hightimeBits = 0x3fffffff & rawData
-        return hightimeBits << 24
-
-    @classmethod
-    def resetHightime( cls ):
-        cls._hightime = 0
 
     @property
     def channel( self ):

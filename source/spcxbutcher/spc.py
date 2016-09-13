@@ -2,6 +2,7 @@ import struct
 import logging
 from spcxbutcher import descriptor
 from spcxbutcher import event
+from spcxbutcher import hightime
 
 UNIT_SIZE = 4
 UNIT_FORMAT = '<L'
@@ -11,7 +12,7 @@ class _NoMoreSPCs( Exception ): pass
 
 class SPC:
     def __init__( self, unitCount, file ):
-        event.Event.resetHightime()
+        self._hightime = hightime.HighTime()
         content = file.read( UNIT_SIZE * unitCount )
         self._iterator = struct.iter_unpack( UNIT_FORMAT, content )
         self._parse()
@@ -34,10 +35,11 @@ class SPC:
     def _parseEvents( self ):
         self._events = []
         for rawData, in self._iterator:
-            candidate = event.Event( rawData )
-            if candidate.type != 'event':
+            event.Event.verifyEventRecordHeader( rawData )
+            self._hightime.inspect( rawData )
+            if self._hightime.changed():
                 continue
-            self._events.append( candidate )
+            self._events.append( event.Event( rawData, self._hightime.value ) )
 
     @property
     def raw( self ):
