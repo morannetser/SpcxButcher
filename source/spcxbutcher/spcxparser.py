@@ -6,14 +6,16 @@ class SPCXParser:
     def __init__( self, filename ):
         self._file = open( filename, 'rb' )
         self._done = False
-        self._spcs = []
-        self._parse()
+        self._count = 0
 
     def _parse( self ):
         while not self._done:
             unit = self._file.read( spcxbutcher.spc.UNIT_SIZE )
             spcUnitCount, = struct.unpack( '<L', unit )
-            self._parseSPC( spcUnitCount )
+            spc = self._parseSPC( spcUnitCount )
+            if spc is None:
+                continue
+            yield spc
 
         self._verifySPCNumber( spcUnitCount )
 
@@ -22,17 +24,14 @@ class SPCXParser:
         if spc is None:
             self._done = True
             return
+        self._count += 1
         logging.info( 'read spc with {} events'.format( len( spc.events ) ) )
-        self._spcs.append( spc )
+        return spc
 
     def _verifySPCNumber( self, lastUnitRead ):
         expectedSPCNumber = lastUnitRead
-        if expectedSPCNumber != len( self._spcs ):
-            raise Exception( "expected {} SPCs but found {}".format( expectedSPCNumber, len( self._spcs ) ) )
-
-    def __len__( self ):
-        return len( self._spcs )
-
+        if expectedSPCNumber != self._count:
+            raise Exception( "expected {} SPCs but found {}".format( expectedSPCNumber, self._count ) )
 
     def __iter__( self ):
-        return iter( self._spcs )
+        return self._parse()

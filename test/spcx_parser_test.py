@@ -43,8 +43,8 @@ class SpcxParserTest( unittest.TestCase ):
     def test_parse_correctly( self ):
         spcxparser.open = FakeOpen( SMALL_SPCX_FILE_HEX )
         tested = spcxparser.SPCXParser( 'spcx_filename' )
-        self.assertEqual( 3, len( tested ) )
         spcs = [ spc for spc in tested ]
+        self.assertEqual( 3, len( spcs ) )
 
         self.assertSPCContent(  spcs[ 0 ],
                                 raw = 0,
@@ -64,13 +64,13 @@ class SpcxParserTest( unittest.TestCase ):
     def test_throw_if_number_of_spcs_different_from_expected_number( self ):
         SPCX_FILE_WITH_WRONG_EXPECTED_NUMBER = SMALL_SPCX_FILE_HEX[ :-8 ] + '04000000'
         spcxparser.open = FakeOpen( SPCX_FILE_WITH_WRONG_EXPECTED_NUMBER )
-        self.assertRaises( Exception, spcxparser.SPCXParser, 'spcx_filename' )
+        self.assertRaises( Exception, self.parseAndIterate, 'spcx_filename' )
 
     def test_support_timestamp_overflow( self ):
         spcxparser.open = FakeOpen( SPCX_WITH_TIMESTAMP_OVERFLOW )
         tested = spcxparser.SPCXParser( 'spcx_filename' )
-        self.assertEqual( 2, len( tested ) )
         spcs = [ spc for spc in tested ]
+        self.assertEqual( 2, len( spcs ) )
 
         self.assertSPCContent(  spcs[ 0 ],
                                 raw = 0,
@@ -86,8 +86,8 @@ class SpcxParserTest( unittest.TestCase ):
     def test_bugfix_timestamp_base_reset_for_each_spc( self ):
         spcxparser.open = FakeOpen( SPCX_WITH_TIMESTAMP_OVERFLOW_3_SPCS )
         tested = spcxparser.SPCXParser( 'spcx_filename' )
-        self.assertEqual( 3, len( tested ) )
         spcs = [ spc for spc in tested ]
+        self.assertEqual( 3, len( spcs ) )
 
         self.assertSPCContent(  spcs[ 0 ],
                                 raw = 0,
@@ -108,8 +108,8 @@ class SpcxParserTest( unittest.TestCase ):
     def test_parse_gap_correctly_when_it_is_not_zero( self ):
         spcxparser.open = FakeOpen( SPCX_WITH_NONZERO_GAP )
         tested = spcxparser.SPCXParser( 'spcx_filename' )
-        self.assertEqual( 3, len( tested ) )
         spcs = [ spc for spc in tested ]
+        self.assertEqual( 3, len( spcs ) )
 
         self.assertSPCContent(  spcs[ 0 ],
                                 raw = 0,
@@ -132,7 +132,7 @@ class SpcxParserTest( unittest.TestCase ):
         for invalidDescriptor in [ '028302d1', '028302c2', '028302cd' ]:
             invalidSPCX = VALID_SPCX.replace( VALID_DESCRIPTOR, invalidDescriptor )
             spcxparser.open = FakeOpen( invalidSPCX )
-            self.assertRaises( spcxbutcher.descriptor.InvalidDescriptor, spcxparser.SPCXParser, 'spcx_filename' )
+            self.assertRaises( spcxbutcher.descriptor.InvalidDescriptor, self.parseAndIterate, 'spcx_filename' )
 
     def test_throw_exception_on_invalid_event( self ):
         VALID_SPCX = SMALL_SPCX_FILE_HEX
@@ -140,9 +140,13 @@ class SpcxParserTest( unittest.TestCase ):
         for invalidEvent in [  '1ba70088', '1ba700c8' ]:
             invalidSPCX = VALID_SPCX.replace( VALID_EVENT, invalidEvent )
             spcxparser.open = FakeOpen( invalidSPCX )
-            self.assertRaises( spcxbutcher.event.InvalidEventRecord, spcxparser.SPCXParser, 'spcx_filename' )
+            self.assertRaises( spcxbutcher.event.InvalidEventRecord, self.parseAndIterate, 'spcx_filename' )
 
     def assertSPCContent( self, spc, raw, timePerBin, events ):
         self.assertEqual( raw, spc.raw )
         self.assertEqual( timePerBin, spc.timePerBin )
         self.assertEqual( events, spc.events )
+
+    def parseAndIterate( self, filename ):
+        parser = spcxparser.SPCXParser( filename )
+        return [ spc for spc in parser ]
