@@ -25,7 +25,6 @@ class SPCXParser:
             self._done = True
             return
         self._count += 1
-        logging.info( 'read spc with {} events'.format( len( spc.events ) ) )
         return spc
 
     def _verifySPCNumber( self, lastUnitRead ):

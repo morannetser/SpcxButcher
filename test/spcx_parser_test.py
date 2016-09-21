@@ -145,8 +145,10 @@ class SpcxParserTest( unittest.TestCase ):
     def assertSPCContent( self, spc, raw, timePerBin, events ):
         self.assertEqual( raw, spc.raw )
         self.assertEqual( timePerBin, spc.timePerBin )
-        self.assertEqual( events, spc.events )
+        actualEvents = [ event for event in spc ]
+        self.assertEqual( events, actualEvents )
 
     def parseAndIterate( self, filename ):
         parser = spcxparser.SPCXParser( filename )
-        return [ spc for spc in parser ]
+        for spc in parser:
+            event = list( spc )

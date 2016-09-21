@@ -49,9 +49,8 @@ class SPC:
     def timePerBin( self ):
         return self._descriptor.timePerBin
 
-    @property
-    def events( self ):
-        return self._events
+    def __iter__( self ):
+        return iter( self._events )
 
 def fromFile( unitCount, file ):
     try:
