@@ -19,6 +19,5 @@ arguments = parser.parse_args()
 logging.basicConfig( level = logging.DEBUG )
 
 parsed = spcxbutcher.spcxparser.SPCXParser( arguments.spcxfile )
-print( '{} SPCs'.format( len( parsed ) ) )
 for spc in parsed:
     printSPC( spc )
