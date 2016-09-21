@@ -10,7 +10,7 @@ def eventTuple( event ):
 def spcDictionary( spc ):
     return { 'raw': spc.raw,
                 'timePerBin': spc.timePerBin,
-                'events': [ eventTuple( event ) for event in spc.events ] }
+                'events': [ eventTuple( event ) for event in spc ] }
 
 
 parser = argparse.ArgumentParser()

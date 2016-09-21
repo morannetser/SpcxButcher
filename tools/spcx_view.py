@@ -4,11 +4,10 @@ import spcxbutcher.spcxparser
 
 def printSPC( spc ):
     print( '=== SPC ===' )
-    print( 'events: {}'.format( len( spc.events ) ) )
     print( 'raw: {}'.format( spc.raw ) )
     print( 'timePerBin: {}'.format( spc.timePerBin ) )
     print( "lvttl\ttimestamp\tgap" )
-    for event in spc.events:
+    for event in spc:
         print( '{}\t{}\t{}'.format( event.lvttl, event.timestamp, event.gap ) )
 
 

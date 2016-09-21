@@ -33,13 +33,12 @@ class SPC:
         next( self._iterator )
 
     def _parseEvents( self ):
-        self._events = []
         for rawData, in self._iterator:
             event.Event.verifyEventRecordHeader( rawData )
             self._hightime.inspect( rawData )
             if self._hightime.changed():
                 continue
-            self._events.append( event.Event( rawData, self._hightime.value ) )
+            yield event.Event( rawData, self._hightime.value )
 
     @property
     def raw( self ):
@@ -50,7 +49,7 @@ class SPC:
         return self._descriptor.timePerBin
 
     def __iter__( self ):
-        return iter( self._events )
+        return self._parseEvents()
 
 def fromFile( unitCount, file ):
     try:
