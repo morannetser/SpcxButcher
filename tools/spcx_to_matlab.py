@@ -27,4 +27,4 @@ for i, spc in enumerate( parsed ):
     scipy.io.savemat( outFile, spcDictionary( spc, i ) )
     minutes = ( time.time() - start ) / 60.0
     timePerSPC = minutes / ( i + 1 )
-    logging.info( 'time elapsed: {:3.2} minutes ({:3.2} min/spc)'.format( minutes, timePerSPC ) )
+    logging.info( 'SPC: {:04} time elapsed: {:3.2} minutes ({:3.2} min/spc)'.format( i, minutes, timePerSPC ) )
