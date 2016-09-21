@@ -134,7 +134,7 @@ class SpcxParserTest( unittest.TestCase ):
             spcxparser.open = FakeOpen( invalidSPCX )
             self.assertRaises( spcxbutcher.descriptor.InvalidDescriptor, spcxparser.SPCXParser, 'spcx_filename' )
 
-    def test_throw_exception_on_invalid_descriptor( self ):
+    def test_throw_exception_on_invalid_event( self ):
         VALID_SPCX = SMALL_SPCX_FILE_HEX
         VALID_EVENT = '1ba70008'
         for invalidEvent in [  '1ba70088', '1ba700c8' ]:
