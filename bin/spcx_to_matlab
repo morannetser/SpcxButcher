@@ -21,17 +21,40 @@ def spcDictionary( spc, index ):
                          'events': [ eventTuple( event ) for event in spc ] } }
     return result
 
+def processSPCX( spcx, function ):
+    for i, spc in enumerate( spcx ):
+        function( spc, i )
+        minutes = ( time.time() - start ) / 60.0
+        timePerSPC = minutes / ( i + 1 )
+        logging.info( 'SPC: {:04} time elapsed: {:3.2} minutes ({:3.2} min/spc)'.format( i, minutes, timePerSPC ) )
+
+def multipleFiles( parsed, prefix ):
+    def _func( spc, i ):
+        outFile = '{}.{}.mat'.format( prefix, i )
+        scipy.io.savemat( outFile, spcDictionary( spc, i ) )
+
+    processSPCX( parsed, _func )
+
+def singleFile( parsed, prefix ):
+    outFile = '{}.mat'.format( prefix )
+    uberDictionary = {}
+
+    def _func( spc, i ):
+        uberDictionary.update( spcDictionary( spc, i ) )
+
+    processSPCX( parsed, _func )
+    scipy.io.savemat( outFile, { 'spcx': uberDictionary } )
+
 parser = argparse.ArgumentParser()
 parser.add_argument( 'spcxfile' )
 parser.add_argument( 'prefix' )
+parser.add_argument( '--single-file', dest='singleFile', action='store_true',
+        help = 'if specified, store all SPCs in a single MATLAB file, do not break it up into one file per SPC' )
 arguments = parser.parse_args()
-
 
 start = time.time()
 parsed = spcxbutcher.spcxparser.SPCXParser( arguments.spcxfile )
-for i, spc in enumerate( parsed ):
-    outFile = '{}.{}.mat'.format( arguments.prefix, i )
-    scipy.io.savemat( outFile, spcDictionary( spc, i ) )
-    minutes = ( time.time() - start ) / 60.0
-    timePerSPC = minutes / ( i + 1 )
-    logging.info( 'SPC: {:04} time elapsed: {:3.2} minutes ({:3.2} min/spc)'.format( i, minutes, timePerSPC ) )
+if arguments.singleFile:
+    singleFile( parsed, arguments.prefix )
+else:
+    multipleFiles( parsed, arguments.prefix )
