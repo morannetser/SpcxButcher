@@ -5,7 +5,9 @@ This project is an SPCX parsing library.
 
 Why call it SpcxButcher?
 
-Well, we love photons. SPCX files? not so much. After some experience with the SPCX format we decided that _parsing_ them would be too lenient.
+Well, we love photons. SPCX files? not so much.
+
+After some experience with the SPCX format we decided that _parsing_ them would be too lenient.
 
 **WE DECIDED TO BUTCHER THEM INSTEAD**!!
 
@@ -33,14 +35,14 @@ will produce `some_prefix.0.mat, some_prefix.1.mat, some_prefix.2.mat,...` in th
 
 The following will take an SPCX file and write a JSON representation of it to `stdout`.
 
-    $ spcx_to_json fixtures/small.spcx
+    $ spcx_to_json small.spcx
     {"spcs": [{"events": [[0, 3, 47638]], "raw": 0, "timePerBin": 164610}, {"events": [[0, 6, 42779], [0, 6, 47325]], "raw": 0, "timePerBin": 164610}, {"events": [[0, 2, 47560], [0, 9, 47947], [0, 5, 48175]], "raw": 0, "timePerBin": 164610}]}
 
 ## Converting an SPCX file to text
 
 Try this:
 
-    $ spcx_view fixtures/small.spcx
+    $ spcx_view small.spcx
     === SPC ===
     raw: 0
     timePerBin: 164610
