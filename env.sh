@@ -1,2 +1,2 @@
 export TOP=$PWD
-export PYTHONPATH=$TOP/source:$PYTHONPATH
+export PYTHONPATH=$TOP:$PYTHONPATH
