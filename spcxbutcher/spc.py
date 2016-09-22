@@ -15,12 +15,8 @@ class SPC:
         self._hightime = hightime.HighTime()
         content = file.read( UNIT_SIZE * unitCount )
         self._iterator = struct.iter_unpack( UNIT_FORMAT, content )
-        self._parse()
-
-    def _parse( self ):
         self._parseDescriptor()
         self._skipGarbageEvent()
-        self._parseEvents()
 
     def _parseDescriptor( self ):
         try:
