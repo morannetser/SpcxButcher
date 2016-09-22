@@ -3,7 +3,7 @@ from distutils.core import setup
 setup(
     name = "spcxbutcher",
     packages = ["spcxbutcher"],
-    version = "0.3",
+    version = "0.4",
     description = "SPCX photon data parser",
     author = "Moran Netser & Yoav Kleinberger",
     author_email = "haarcuba@gmail.com",
