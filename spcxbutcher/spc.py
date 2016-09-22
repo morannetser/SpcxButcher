@@ -8,7 +8,7 @@ UNIT_SIZE = 4
 UNIT_FORMAT = '<L'
 assert struct.calcsize( UNIT_FORMAT ) == UNIT_SIZE
 
-class _NoMoreSPCs( Exception ): pass
+class NoMoreSPCs( Exception ): pass
 
 class SPC:
     def __init__( self, unitCount, file ):
@@ -23,7 +23,7 @@ class SPC:
             rawData, = next( self._iterator )
             self._descriptor = descriptor.Descriptor( rawData )
         except StopIteration:
-            raise _NoMoreSPCs()
+            raise NoMoreSPCs()
 
     def _skipGarbageEvent( self ):
         next( self._iterator )
@@ -50,5 +50,5 @@ class SPC:
 def fromFile( unitCount, file ):
     try:
         return SPC( unitCount, file )
-    except _NoMoreSPCs:
+    except NoMoreSPCs:
         return None
