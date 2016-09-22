@@ -22,8 +22,6 @@ class JSONEncoder( json.JSONEncoder ):
 
         return json.JSONEncoder.default( self, thing )
 
-
-
 parser = argparse.ArgumentParser()
 parser.add_argument( 'spcxfile' )
 arguments = parser.parse_args()
