@@ -23,11 +23,24 @@ class JSONEncoder( json.JSONEncoder ):
 
         return json.JSONEncoder.default( self, thing )
 
+def multipleFiles( spcx, prefix ):
+    for i, spc in enumerate( spcx ):
+        outFile = '{}.{}.json'.format( prefix, i )
+        with open( outFile, 'w' ) as f:
+            json.dump( spc, f, cls = JSONEncoder )
+
 parser = argparse.ArgumentParser()
 parser.add_argument( 'spcxfile' )
+parser.add_argument( 'prefix' )
+parser.add_argument( '--single-file', dest='singleFile', action='store_true',
+        help = 'if specified, store all SPCs in a single MATLAB file, do not break it up into one file per SPC' )
 arguments = parser.parse_args()
 
 logging.basicConfig( level = logging.DEBUG )
 
 parsed = spcxbutcher.spcxparser.SPCXParser( arguments.spcxfile )
-json.dump( parsed, sys.stdout, cls=JSONEncoder )
+if arguments.singleFile:
+    outFile = '{}.json'.format( arguments.prefix )
+    json.dump( parsed, open( outFile, 'w' ), cls = JSONEncoder )
+else:
+    multipleFiles( parsed, arguments.prefix )
