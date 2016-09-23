@@ -5,11 +5,10 @@ class InvalidEventRecord( Exception ):
 
 class Event:
     def __init__( self, rawData, hightime ):
-        self.type = 'event'
         timestamp = rawData & 0x00ffffff
-        self.lvttl = self._lvttl( rawData )
-        self.gap = rawData >> 29
-        self.timestamp = hightime + timestamp
+        self._lvttl = self._extractLvttl( rawData )
+        self._gap = rawData >> 29
+        self._timestamp = hightime + timestamp
 
     def __repr__( self ):
         return str( ( self.lvttl, self.timestamp, self.gap ) )
@@ -24,7 +23,19 @@ class Event:
     def channel( self ):
         return self.lvttl
 
-    def _lvttl( self, event ):
+    @property
+    def lvttl( self ):
+        return self._lvttl
+
+    @property
+    def gap( self ):
+        return self._gap
+
+    @property
+    def timestamp( self ):
+        return self._timestamp
+
+    def _extractLvttl( self, event ):
         channel = ( event >> 24 ) & 0b00011111
         if channel < 3 or channel > 14:
             raise Exception( "unexpected channel value: {}".format( channel ) )
